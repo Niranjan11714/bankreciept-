@@ -141,14 +141,60 @@ const CashDepositSlip = () => {
   return (
     <div>
       {/* Account Number Input Above the Form */}
-      <div className="fetch-input">
+      <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '20px'}} 
+                className="fetch-input">
         <input
+          style={{
+            width: '250px',
+            padding: '10px 15px',
+            fontSize: '16px',
+            border: '1px solid #000',
+            borderRadius: '5px',
+            marginTop: '10px',
+            marginLeft: '8px',
+            outline: 'none',
+            transition: 'all 0.3s ease-in-out',
+            boxShadow: '0 0 10px rgba(52, 152, 219, 0.1)',
+            backgroundColor: '#fff',
+            color: '#000',
+            textAlign: 'center',
+            ':focus': {
+                borderColor: '#000',
+                boxShadow: '0 0 15px rgba(52, 152, 219, 0.3)',
+            },
+            '::placeholder': {
+                color: '#95a5a6',
+            },
+          }}
           type="text"
           placeholder="Enter Account Number"
           value={accountNumber}
           onChange={(e) => setAccountNumber(e.target.value)}
         />
-        <button type="button" onClick={fetchUserDetails}>Fetch Details</button>
+        <button style={{
+                        backgroundColor: '#fff',
+                        color: '#000',
+                        padding: '5px 25px',
+                        fontSize: '12px',
+                        border: '1px solid #000',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        marginTop: '20px',
+                        transition: 'all 0.3s ease',
+                        display: 'block',
+                        margin: '20px auto',
+                        width: '180px',
+                        boxShadow: '0 4px 6px rgba(46, 204, 113, 0.3)',
+                        textTransform: 'uppercase',
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }} 
+                    type="button" onClick={fetchUserDetails}>Fetch Details</button>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -254,7 +300,22 @@ const CashDepositSlip = () => {
 
         {/* Submit Button */}
         
-        <button type="submit">Generate PDF</button> 
+        <button 
+        style={{
+          backgroundColor: '#0066cc',
+          color: 'white',
+          padding: '10px 20px',
+          fontSize: '16px',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          marginTop: '20px',
+          transition: 'background-color 0.3s ease',
+          display: 'block',
+          margin: '20px auto',
+          width: '175px'
+      }}
+         type="submit">Generate PDF</button> 
       </form> 
     </div>
   );
