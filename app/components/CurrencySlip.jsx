@@ -81,44 +81,44 @@ const CurrencySlip = () => {
         setAmountInWords('Converted Amount in Words'); 
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-    
-        // Select the element to capture
-        const input = document.getElementById('currency-slip'); // Ensure this ID matches your container's ID
-    
-        // Use html2canvas to take a snapshot of the form
-        const canvas = await html2canvas(input, {
-            scale: 2, // Adjust scale for higher resolution
-        });
-    
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'pt', 'a4'); // Create PDF in portrait mode
-    
-        // Calculate dimensions to fit the image into the PDF
-        const imgWidth = 595.28; // A4 width in points
-        const pageHeight = 841.89; // A4 height in points
-        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height to maintain aspect ratio
-        let heightLeft = imgHeight;
-    
-        let position = 0;
-    
-        // Add the image to the PDF
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Select the element to capture
+    const input = document.getElementById('currency-slip'); // Ensure this ID matches your container's ID
+
+    // Use html2canvas to take a snapshot of the form
+    const canvas = await html2canvas(input, {
+        scale: 2, // Adjust scale for higher resolution
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'pt', 'a4'); // Create PDF in portrait mode
+
+    // Calculate dimensions to fit the image into the PDF
+    const imgWidth = 595.28; // A4 width in points
+    const pageHeight = 841.89; // A4 height in points
+    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height to maintain aspect ratio
+    let heightLeft = imgHeight;
+
+    let position = 0;
+
+    // Add the image to the PDF
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // If the image is longer than a page, add more pages
+    while (heightLeft >= 0) {
+        position = heightLeft - imgHeight; // Set the position for the new page
+        pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
-    
-        // If the image is longer than a page, add more pages
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight; // Set the position for the new page
-            pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-        }
-    
-        // Trigger download
-        pdf.save('currency_slip.pdf');
-    };
-    
+    }
+
+    // Trigger download
+    pdf.save('currency_slip.pdf');
+};
+
 
     const handleFetchData = async () => {
         try {

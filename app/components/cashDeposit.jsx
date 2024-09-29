@@ -15,249 +15,249 @@ const CashDepositSlip = () => {
   const [accountNumber, setAccountNumber] = useState('');
   const [userDetails, setUserDetails] = useState(null);
   
-   // Set current date
-   const [currentDate, setCurrentDate] = useState('');
-   useEffect(() => {
-     const today = new Date().toISOString().split('T')[0];
-     setCurrentDate(today);
-   }, []);
+  // Set current date
+  const [currentDate, setCurrentDate] = useState('');
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    setCurrentDate(today);
+  }, []);
 
-   // Fetch user details based on account number
-   const fetchUserDetails = async () => {
-     if (!accountNumber) return;
+  // Fetch user details based on account number
+  const fetchUserDetails = async () => {
+    if (!accountNumber) return;
 
-     try {
-       const response = await fetch(`http://localhost:5000/api/accounts/${accountNumber}`); // Your API endpoint
-       const data = await response.json();
-       
-       if (response.ok && data.length > 0) {
-         setUserDetails(data[0]); // Assuming data is an array and we want the first item
-       } else {
-         console.error('User not found or error fetching data:', data);
-         setUserDetails(null); // Reset user details on error
-       }
-     } catch (error) {
-       console.error('Error fetching user details:', error);
-       setUserDetails(null); // Reset user details on error
-     }
-   };
-
-   // Function to handle quantity change
-   const handleQuantityChange = (denomination, event) => {
-     const newQuantities = { ...quantities, [denomination]: parseInt(event.target.value) || 0 };
-     setQuantities(newQuantities);
-     calculateTotalAmount(newQuantities);
-   };
-
-   // Function to calculate total amount
-   const calculateTotalAmount = (newQuantities) => {
-     let total = Object.keys(newQuantities).reduce((acc, denomination) => {
-       return acc + denomination * newQuantities[denomination];
-     }, 0);
-     setTotalAmount(total);
-     convertAmountToWords(total);
-   };
-
-   // Function to convert amount to words
-   const convertAmountToWords = (amount) => {
-     const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-     const teens = ['Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-     const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-     const thousands = ['', 'Thousand', 'Lakh', 'Crore'];
-
-     if (amount === 0) return 'Zero';
-
-     let word = '';
-     let num = amount.toString();
-     let digitGroups = [];
-     
-     while (num.length > 3) {
-       digitGroups.unshift(num.slice(-3));
-       num = num.slice(0, -3);
-     }
-     
-     digitGroups.unshift(num);
-
-     digitGroups.forEach((group, i) => {
-       let groupValue = parseInt(group);
-       if (groupValue === 0) return;
-       let groupWord = '';
-
-       if (groupValue > 99) {
-         groupWord += units[Math.floor(groupValue / 100)] + ' Hundred ';
-         groupValue %= 100;
-       }
-
-       if (groupValue > 10 && groupValue < 20) {
-         groupWord += teens[groupValue - 11] + ' ';
-       } else {
-         groupWord += tens[Math.floor(groupValue / 10)] + ' ';
-         groupWord += units[groupValue % 10] + ' ';
-       }
-
-       word += groupWord.trim() + ' ' + thousands[digitGroups.length - i - 1] + ' ';
-     });
-
-     setAmountInWords(word.trim() + ' Rupees Only');
-   };
-
-   // Function to handle form submission for PDF generation
-   const handleSubmit = async (e) => {
-      e.preventDefault();
+    try {
+      const response = await fetch(`http://localhost:5000/api/accounts/${accountNumber}`); // Your API endpoint
+      const data = await response.json();
       
-      // Select the element to capture
-      const input = document.getElementById('currency-slip'); 
-      
-      // Use html2canvas to take a snapshot of the form
-      const canvas = await html2canvas(input, { scale: 2 });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'pt', 'a4'); 
-      
-      // Calculate dimensions to fit the image into the PDF
-      const imgWidth = 595.28; 
-      const pageHeight = 841.89; 
-      const imgHeight = (canvas.height * imgWidth) / canvas.width; 
-      let heightLeft = imgHeight;
-      
-      let position = 0;
-      
-      // Add the image to the PDF
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      
-      // If the image is longer than a page, add more pages
-      while (heightLeft >= 0) {
-          position = heightLeft - imgHeight; 
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+      if (response.ok && data.length > 0) {
+        setUserDetails(data[0]); // Assuming data is an array and we want the first item
+      } else {
+        console.error('User not found or error fetching data:', data);
+        setUserDetails(null); // Reset user details on error
       }
-      
-      // Trigger download
-      pdf.save('cash_deposit_slip.pdf');
-   };
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      setUserDetails(null); // Reset user details on error
+    }
+  };
 
-   return (
-     <form onSubmit={handleSubmit}>
-       <div className="slip-container" id="currency-slip">
-         {/* Account Number Input Above the Form */}
-         <div className="fetch-input">
-           <input
-             type="text"
-             placeholder="Enter Account Number"
-             value={accountNumber}
-             onChange={(e) => setAccountNumber(e.target.value)}
-           />
-           <button type="button" onClick={fetchUserDetails}>Fetch Details</button>
-         </div>
+  // Function to handle quantity change
+  const handleQuantityChange = (denomination, event) => {
+    const newQuantities = { ...quantities, [denomination]: parseInt(event.target.value) || 0 };
+    setQuantities(newQuantities);
+    calculateTotalAmount(newQuantities);
+  };
 
-         {/* Left side */}
-         <div className="slip-section">
-           <table>
-             <tbody>
-               <tr>
-                 <td colSpan="2" className="center-align bold">
-                   भारतीय स्टेट बैंक<br />State Bank of India
-                 </td>
-               </tr>
-               <tr>
-                 <td>जमा पर्ची Pay in Slip</td>
-                 <td>रोकड़<br />Cash</td>
-               </tr>
-               <tr>
-                 <td>शाखा Branch</td>
-                 <td><input type="text" name="branch" value={userDetails ? userDetails.branch : ''} readOnly required /></td>
-               </tr>
-               <tr>
-                 <td>खाता क्र A/C No.</td>
-                 <td><input type="text" name="account_number" value={accountNumber} readOnly required /></td>
-               </tr>
-               <tr>
-                 <td>दिनांक Date</td>
-                 <td><input type="date" name="date" value={currentDate} readOnly required /></td>
-               </tr>
-               <tr>
-                 <td>मोबाइल नंबर Mobile No.</td>
-                 <td><input type="text" name="mobile_number" value={userDetails ? userDetails.mobileNumber : ''} readOnly required /></td>
-               </tr>
-             </tbody>
-           </table>
+  // Function to calculate total amount
+  const calculateTotalAmount = (newQuantities) => {
+    let total = Object.keys(newQuantities).reduce((acc, denomination) => {
+      return acc + denomination * newQuantities[denomination];
+    }, 0);
+    setTotalAmount(total);
+    convertAmountToWords(total);
+  };
 
-           {/* Amount in Words */}
-           <p>₹ शब्दों में<br />In Words:</p>
-           <p><input type="text" id="amount_in_words" value={amountInWords} readOnly /></p>
+  // Function to convert amount to words
+  const convertAmountToWords = (amount) => {
+    const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    const teens = ['Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    const thousands = ['', 'Thousand', 'Lakh', 'Crore'];
 
-           {/* Total Amount */}
-           <table>
-             <tbody>
-               <tr>
-                 <td>Total Amount ₹</td>
-                 <td><input type="number" value={totalAmount} readOnly /></td>
-               </tr>
-             </tbody>
-           </table>
+    if (amount === 0) return 'Zero';
 
-         </div>
+    let word = '';
+    let num = amount.toString();
+    let digitGroups = [];
+    
+    while (num.length > 3) {
+      digitGroups.unshift(num.slice(-3));
+      num = num.slice(0, -3);
+    }
+    
+    digitGroups.unshift(num);
 
-         {/* Right side */}
-         <div className="slip-section">
-           <table>
-             <tbody>
-               <tr>
-                 <td colSpan="2" className="center-align bold">
-                   भारतीय स्टेट बैंक<br />State Bank of India
-                 </td>
-               </tr>
-               <tr>
-                 <td>खाता क्र A/C No.</td>
-                 {/* Displaying same account number for consistency */}
-                 <td><input type="text" name="account_number_right" value={accountNumber} readOnly required /></td> 
-               </tr>
-               <tr>
-                 <td>दिनांक Date</td>
-                 {/* Same date for consistency */}
-                 <td><input type="date" name="date_right" value={currentDate} readOnly required /></td> 
-               </tr>
-             </tbody>
-           </table>
+    digitGroups.forEach((group, i) => {
+      let groupValue = parseInt(group);
+      if (groupValue === 0) return;
+      let groupWord = '';
 
-           {/* Denomination Table */}
-           <table className="denomination-table">
-             <thead>
-               <tr>
-                 <th>Cash Denomination</th>
-                 <th>Quantity</th>
-                 <th>Amount</th>
-               </tr>
-             </thead>
-             <tbody>
-               {[2000, 500, 200, 100, 50, 20, 10, 5, 2, 1].map(denomination => (
-                 <tr key={denomination}>
-                   <td>x {denomination}</td>
-                   <td><input 
-                       type="number"
-                       value={quantities[denomination]}
-                       min="0"
-                       onChange={(e) => handleQuantityChange(denomination, e)} 
-                     />
-                   </td>
-                   {/* Read-only amount calculation */}
-                   <td><input type="number" value={denomination * quantities[denomination]} readOnly /></td> 
-                 </tr>
-               ))}
-             </tbody>
-           </table>
+      if (groupValue > 99) {
+        groupWord += units[Math.floor(groupValue / 100)] + ' Hundred ';
+        groupValue %= 100;
+      }
 
-           {/* Total Amount */}
-           {/* This can be included here if needed */}
-         </div> {/* End of Right side */}
-       </div> {/* End of slip-container */}
+      if (groupValue > 10 && groupValue < 20) {
+        groupWord += teens[groupValue - 11] + ' ';
+      } else {
+        groupWord += tens[Math.floor(groupValue / 10)] + ' ';
+        groupWord += units[groupValue % 10] + ' ';
+      }
 
-       {/* Submit Button */}
-       <button type="submit">Generate PDF</button> 
-     </form> 
-   );
+      word += groupWord.trim() + ' ' + thousands[digitGroups.length - i - 1] + ' ';
+    });
+
+    setAmountInWords(word.trim() + ' Rupees Only');
+  };
+
+  // Function to handle form submission for PDF generation
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Select the element to capture
+    const input = document.getElementById('currency-slip'); 
+    
+    // Use html2canvas to take a snapshot of the form
+    const canvas = await html2canvas(input, { scale: 2 });
+    
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'pt', 'a4'); 
+    
+    // Calculate dimensions to fit the image into the PDF
+    const imgWidth = 595.28; 
+    const pageHeight = 841.89; 
+    const imgHeight = (canvas.height * imgWidth) / canvas.width; 
+    let heightLeft = imgHeight;
+    
+    let position = 0;
+    
+    // Add the image to the PDF
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+    
+    // If the image is longer than a page, add more pages
+    while (heightLeft >= 0) {
+        position = heightLeft - imgHeight; 
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+    }
+    
+    // Trigger download
+    pdf.save('cash_deposit_slip.pdf');
+  };
+
+  return (
+    <div>
+      {/* Account Number Input Above the Form */}
+      <div className="fetch-input">
+        <input
+          type="text"
+          placeholder="Enter Account Number"
+          value={accountNumber}
+          onChange={(e) => setAccountNumber(e.target.value)}
+        />
+        <button type="button" onClick={fetchUserDetails}>Fetch Details</button>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div className="slip-container" id="currency-slip">
+          {/* Left side */}
+          <div className="slip-section">
+            <table>
+              <tbody>
+                <tr>
+                  <td colSpan="2" className="center-align bold">
+                    भारतीय स्टेट बैंक<br />State Bank of India
+                  </td>
+                </tr>
+                <tr>
+                  <td>जमा पर्ची Pay in Slip</td>
+                  <td>रोकड़<br />Cash</td>
+                </tr>
+                <tr>
+                  <td>शाखा Branch</td>
+                  <td><input type="text" name="branch" value={userDetails ? userDetails.branch : ''} readOnly required /></td>
+                </tr>
+                <tr>
+                  <td>खाता क्र A/C No.</td>
+                  <td><input type="text" name="account_number" value={accountNumber} readOnly required /></td>
+                </tr>
+                <tr>
+                  <td>दिनांक Date</td>
+                  <td><input type="date" name="date" value={currentDate} readOnly required /></td>
+                </tr>
+                <tr>
+                  <td>मोबाइल नंबर Mobile No.</td>
+                  <td><input type="text" name="mobile_number" value={userDetails ? userDetails.mobileNumber : ''} readOnly required /></td>
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Amount in Words */}
+            <p>₹ शब्दों में<br />In Words:</p>
+            <p><input type="text" id="amount_in_words" value={amountInWords} readOnly /></p>
+
+            {/* Total Amount */}
+            <table>
+              <tbody>
+                <tr>
+                  <td>Total Amount ₹</td>
+                  <td><input type="number" value={totalAmount} readOnly /></td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+
+          {/* Right side */}
+          <div className="slip-section">
+            <table>
+              <tbody>
+                <tr>
+                  <td colSpan="2" className="center-align bold">
+                    भारतीय स्टेट बैंक<br />State Bank of India
+                  </td>
+                </tr>
+                <tr>
+                  <td>खाता क्र A/C No.</td>
+                  {/* Displaying same account number for consistency */}
+                  <td><input type="text" name="account_number_right" value={accountNumber} readOnly required /></td> 
+                </tr>
+                <tr>
+                  <td>दिनांक Date</td>
+                  {/* Same date for consistency */}
+                  <td><input type="date" name="date_right" value={currentDate} readOnly required /></td> 
+                </tr>
+              </tbody>
+            </table>
+
+            {/* Denomination Table */}
+            <table className="denomination-table">
+              <thead>
+                <tr>
+                  <th>Cash Denomination</th>
+                  <th>Quantity</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[2000, 500, 200, 100, 50, 20, 10, 5, 2, 1].map(denomination => (
+                  <tr key={denomination}>
+                    <td>x {denomination}</td>
+                    <td><input 
+                        type="number"
+                        value={quantities[denomination]}
+                        min="0"
+                        onChange={(e) => handleQuantityChange(denomination, e)} 
+                      />
+                    </td>
+                    {/* Read-only amount calculation */}
+                    <td><input type="number" value={denomination * quantities[denomination]} readOnly /></td> 
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Submit Button */}
+        
+        <button type="submit">Generate PDF</button> 
+      </form> 
+    </div>
+  );
 };
 
 export default CashDepositSlip;
