@@ -1,0 +1,73 @@
+/* cashDepositSlip.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.slip-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 1000px;
+    margin: 20px auto;
+    border: 1px solid black;
+    font-size: 12px;
+}
+.slip-section {
+    border-left: 1px dashed black;
+    padding: 10px;
+}
+.slip-section:first-child {
+    border-left: none;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+td, th {
+    border: 1px solid black;
+    padding: 5px;
+    text-align: left;
+}
+.header {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.note {
+    font-size: 10px;
+    margin-top: 10px;
+    text-align: center;
+}
+.small-text {
+    font-size: 10px;
+}
+.cash-details td {
+    width: 20%;
+}
+.inline-table {
+    display: inline-table;
+    width: 48%;
+}
+.bold {
+    font-weight: bold;
+}
+.left-align {
+    text-align: left;
+}
+.center-align {
+    text-align: center;
+}
+.denomination-table td {
+    text-align: center;
+}
+input, select {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+input[type="number"] {
+    width: 90%;
+    text-align: center;
+}
